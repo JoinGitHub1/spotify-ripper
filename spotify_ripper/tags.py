@@ -13,10 +13,13 @@ import base64
 
 
 def set_metadata_tags(args, audio_file, idx, track, ripper):
+    # encode audio_file
+    audio_file_enc = enc_str(audio_file)
+
     # log completed file
     print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) +
           Style.NORMAL + "\t[ " +
-          format_size(os.stat(enc_str(audio_file))[ST_SIZE]) + " ]" +
+          format_size(os.stat(audio_file_enc)[ST_SIZE]) + " ]" +
           Fore.RESET)
 
     if args.output_type == "wav" or args.output_type == "pcm":
@@ -96,7 +99,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
         def save_cover_image(embed_image_func):
             if image is not None:
                 def write_image(file_name):
-                    cover_path = os.path.dirname(audio_file)
+                    cover_path = os.path.dirname(audio_file_enc)
                     cover_file = os.path.join(cover_path, file_name)
                     if not path_exists(cover_file):
                         with open(enc_str(cover_file), "wb") as f:
@@ -172,9 +175,9 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
                 audio.save()
 
         # aac is not well supported
-        def set_id3_tags_raw(audio, audio_file):
+        def set_id3_tags_raw(audio, audio_file_enc):
             try:
-                id3_dict = id3.ID3(audio_file)
+                id3_dict = id3.ID3(audio_file_enc)
             except id3.ID3NoHeaderError:
                 id3_dict = id3.ID3()
 
@@ -230,10 +233,10 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
 
             if args.id3_v23:
                 id3_dict.update_to_v23()
-                id3_dict.save(audio_file, v2_version=3, v23_sep='/')
+                id3_dict.save(audio_file_enc, v2_version=3, v23_sep='/')
                 id3_dict.version = (2, 3, 0)
             else:
-                id3_dict.save(audio_file)
+                id3_dict.save(audio_file_enc)
             audio.tags = id3_dict
 
         def set_vorbis_comments(audio):
@@ -343,46 +346,46 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
             audio.save()
 
         if args.output_type == "flac":
-            audio = flac.FLAC(audio_file)
+            audio = flac.FLAC(audio_file_enc)
             set_vorbis_comments(audio)
         if args.output_type == "aiff":
-            audio = aiff.AIFF(audio_file)
+            audio = aiff.AIFF(audio_file_enc)
             set_id3_tags(audio)
         elif args.output_type == "ogg":
-            audio = oggvorbis.OggVorbis(audio_file)
+            audio = oggvorbis.OggVorbis(audio_file_enc)
             set_vorbis_comments(audio)
         elif args.output_type == "opus":
-            audio = oggopus.OggOpus(audio_file)
+            audio = oggopus.OggOpus(audio_file_enc)
             set_vorbis_comments(audio)
         elif args.output_type == "aac":
-            audio = aac.AAC(audio_file)
-            set_id3_tags_raw(audio, audio_file)
+            audio = aac.AAC(audio_file_enc)
+            set_id3_tags_raw(audio, audio_file_enc)
         elif args.output_type == "m4a":
             if sys.version_info >= (3, 0):
                 from mutagen import mp4
 
-                audio = mp4.MP4(audio_file)
+                audio = mp4.MP4(audio_file_enc)
                 set_mp4_tags(audio)
             else:
                 from mutagen import m4a, mp4
 
-                audio = m4a.M4A(audio_file)
+                audio = m4a.M4A(audio_file_enc)
                 set_m4a_tags(audio)
-                audio = mp4.MP4(audio_file)
+                audio = mp4.MP4(audio_file_enc)
         elif args.output_type == "alac.m4a":
             if sys.version_info >= (3, 0):
                 from mutagen import mp4
 
-                audio = mp4.MP4(audio_file)
+                audio = mp4.MP4(audio_file_enc)
                 set_mp4_tags(audio)
             else:
                 from mutagen import m4a, mp4
 
-                audio = m4a.M4A(audio_file)
+                audio = m4a.M4A(audio_file_enc)
                 set_m4a_tags(audio)
-                audio = mp4.MP4(audio_file)
+                audio = mp4.MP4(audio_file_enc)
         elif args.output_type == "mp3":
-            audio = mp3.MP3(audio_file, ID3=id3.ID3)
+            audio = mp3.MP3(audio_file_enc, ID3=id3.ID3)
             set_id3_tags(audio)
 
         def bit_rate_str(bit_rate):
