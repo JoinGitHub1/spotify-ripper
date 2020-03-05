@@ -438,7 +438,7 @@ def is_partial(audio_file, track):
 
     def audio_file_duration(audio_file):
         if (path_exists(audio_file)):
-            _file = mutagen.File(audio_file)
+            _file = mutagen.File(enc_str(audio_file))
             if _file is not None and _file.info is not None:
                 return _file.info.length
         return None
