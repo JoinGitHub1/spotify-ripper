@@ -6,7 +6,7 @@ scope = 'playlist-modify-public playlist-modify-private playlist-read-collaborat
 
 client_id = os.environ["SPOTIPY_CLIENT_ID"] 
 client_secret = os.environ["SPOTIPY_CLIENT_SECRET"]
-redirect_uri = os.environ["SPOTIPY_REDIRECT_URI"]
+redirect_uri = 'http://www.purple.com'
 
 token = None
 spotInstance = None
@@ -35,8 +35,13 @@ def get_playlist_tracks(username, playlistURI):
     spotInstance.trace = False
 
     print('Getting Results')
-    results = spotInstance.user_playlist(username, rPlaylistID, fields="tracks,next")
+    results = spotInstance.user_playlist_tracks(username, rPlaylistID)
 
-    tracks = results['tracks']
+    tracks = results['items']
+
+    # loop to ensure to get every track of the playlist
+    while results['next']:
+        results = spotInstance.next(results)
+        tracks.extend(results['items'])
 
     return tracks
