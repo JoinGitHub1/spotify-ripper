@@ -76,16 +76,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
             genres_ascii = [to_ascii(genre) for genre in genres]
 
         # cover art image
-        image = None
-        if args.large_cover_art:
-            image = ripper.web.get_large_coverart(track.link.uri)
-
-        # if we fail, use regular cover size
-        if image is None:
-            image = track.album.cover()
-            if image is not None:
-                image.load(args.timeout)
-                image = image.data
+        image = ripper.web.get_large_coverart(track.link.uri)
 
         def tag_to_ascii(_str, _str_ascii):
             return _str if args.ascii_path_only else _str_ascii
@@ -99,7 +90,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
         def save_cover_image(embed_image_func):
             if image is not None:
                 def write_image(file_name):
-                    cover_path = os.path.dirname(audio_file_enc)
+                    cover_path = os.path.dirname(audio_file)
                     cover_file = os.path.join(cover_path, file_name)
                     if not path_exists(cover_file):
                         with open(enc_str(cover_file), "wb") as f:
