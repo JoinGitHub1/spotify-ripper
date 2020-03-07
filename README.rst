@@ -1,5 +1,5 @@
-spotify-ripper |Version|
-========================
+spotify-ripper
+==============
 A fork of
 `spotify-ripper <https://github.com/jrnewell/spotify-ripper`__ that uses `spotipy <https://github.com/plamere/spotipy>`__ for WebAPI integration and playlist updating
 
