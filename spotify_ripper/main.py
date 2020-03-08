@@ -564,7 +564,7 @@ def main(prog_args=sys.argv[1:]):
         if set_logged_in:
             ripper.ripper_continue.set()
         ripper.join()
-        sys.exit(1)
+        sys.exit(130)
 
     def skip():
         if ripper.ripping.is_set():
