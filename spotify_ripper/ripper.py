@@ -278,8 +278,8 @@ class Ripper(threading.Thread):
                     self.audio_file = self.format_track_path(idx, track)
 
                     if not args.overwrite and path_exists(self.audio_file):
-                        if is_partial(self.audio_file, track):
-                            print("Overwriting partial file")
+                        if is_partial_or_corrupt(self.audio_file, track):
+                            print("Overwriting partial or corrupt file")
                         else:
                             print(
                                 Fore.YELLOW + "Skipping " +

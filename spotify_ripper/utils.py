@@ -430,20 +430,26 @@ def format_size(size, short=False):
             str_value = str_value[:3]
         return "{0:>3s}{1}".format(str_value, suffix)
 
-# returns true if audio_file is a partial of track
-def is_partial(audio_file, track):
+# returns true if audio_file is a partial of track or corrupt
+def is_partial_or_corrupt(audio_file, track):
     args = get_args()
     if (args.partial_check == "none"):
         return False
 
     def audio_file_duration(audio_file):
         if (path_exists(audio_file)):
-            _file = mutagen.File(enc_str(audio_file))
+            try:
+                _file = mutagen.File(enc_str(audio_file))
+            except mutagen.mp4.MP4StreamInfoError as e:
+                return "corrupt"
             if _file is not None and _file.info is not None:
                 return _file.info.length
         return None
 
     audio_file_dur = audio_file_duration(audio_file)
+
+    if audio_file_dur == "corrupt":
+        return True
 
     # for 'weak', give a ~1.5 second wiggle-room
     if (args.partial_check == "strict"):

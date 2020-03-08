@@ -73,7 +73,7 @@ class Progress(object):
 
                 # check if we should overwrite existing file
                 if not self.args.overwrite and path_exists(audio_file) and \
-                        not is_partial(audio_file, track):
+                        not is_partial_or_corrupt(audio_file, track):
                     self.skipped_tracks += 1
                     continue
 
