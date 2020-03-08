@@ -624,6 +624,8 @@ def main(prog_args=sys.argv[1:]):
     finally:
         if not args.has_log and stdin_settings:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, stdin_settings)
+        if not ripper.exception is None:
+            raise ripper.exception
 
 if __name__ == '__main__':
     main()

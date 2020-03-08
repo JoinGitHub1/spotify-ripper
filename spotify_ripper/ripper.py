@@ -42,6 +42,8 @@ class BitRate(spotify.utils.IntEnum):
 class Ripper(threading.Thread):
     name = 'SpotifyRipperThread'
 
+    exception = None
+
     audio_file = None
     pcm_file = None
     wav_file = None
@@ -180,6 +182,12 @@ class Ripper(threading.Thread):
         return self.login_success
 
     def run(self):
+        try:
+            self.execute()
+        except Exception as exception:
+            self.exception = exception
+
+    def execute(self):
         args = self.args
 
         # start event loop
