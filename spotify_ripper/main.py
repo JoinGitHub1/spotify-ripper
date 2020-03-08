@@ -626,6 +626,7 @@ def main(prog_args=sys.argv[1:]):
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, stdin_settings)
         if not ripper.exception is None:
             raise ripper.exception
+        sys.exit(ripper.exit_code)
 
 if __name__ == '__main__':
     main()

@@ -43,6 +43,7 @@ class Ripper(threading.Thread):
     name = 'SpotifyRipperThread'
 
     exception = None
+    exit_code = 0
 
     audio_file = None
     pcm_file = None
@@ -585,6 +586,7 @@ class Ripper(threading.Thread):
             self.skip.set()
         else:
             print("\n" + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
+            self.exit_code = 42
             self.abort_rip()
 
     def on_end_of_track(self, session):
