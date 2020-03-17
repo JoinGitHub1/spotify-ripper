@@ -385,6 +385,7 @@ class Ripper(threading.Thread):
         self.logout()
         self.stop_event_loop()
         self.finished.set()
+        self.exit_code = self.post.exit_code()
         sys.exit()
 
     def check_stop_time(self):

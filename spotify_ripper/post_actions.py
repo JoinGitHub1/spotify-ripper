@@ -301,3 +301,9 @@ class PostActions(object):
             if path_exists(storage_path):
                 shutil.rmtree(enc_str(storage_path))
 
+    def exit_code(self):
+        if len(self.failure_tracks) > 0:
+            return 100
+        else:
+            return 0
+
