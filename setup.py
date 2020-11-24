@@ -20,16 +20,16 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='2.10.5',
+    version='2.9.6',
     packages=find_packages(exclude=["tests"]),
-    #scripts=['spotify_ripper/main.py'],
+    scripts=['spotify_ripper/main.py'],
     include_package_data=True,
     zip_safe=False,
 
     # Executable
     entry_points={
         'console_scripts': [
-            'spotify-ripper = spotify_ripper.main:main',
+            'spotify-ripper = main:main',
         ],
     },
 
@@ -40,12 +40,11 @@ setup(
 
     # Requirements
     install_requires=[
-        'pyspotify==2.0.5',
+        'pyspotify==2.1.3',
         'colorama==0.3.3',
         'mutagen==1.30',
-        'requests>=2.3.0',
-        'schedule>=0.3.1',
-        'spotipy==2.4.4'
+        'requests>=2.24.0',
+        'schedule>=0.6.0',
     ],
 
     # Metadata
@@ -56,7 +55,7 @@ setup(
     license='MIT',
     keywords="spotify ripper mp3 ogg vorbis flac opus acc mp4 m4a",
     url='https://github.com/jrnewell/spotify-ripper',
-    download_url='https://github.com/jrnewell/spotify-ripper/tarball/2.10.5',
+    download_url='https://github.com/jrnewell/spotify-ripper/tarball/2.9.1',
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',
@@ -68,7 +67,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
     ],
-    #long_description=_read('README.rst'),
+    long_description=_read('README.rst'),
 )
 
 create_default_dir()
