@@ -217,6 +217,8 @@ def format_track_string(ripper, format_string, idx, track):
         smart_num = track_num
 
     if current_playlist is not None:
+        if not current_playlist.is_loaded:
+            current_playlist.load()
         playlist_name = to_ascii(
             sanitize_playlist_name(current_playlist.name))
         playlist_owner = to_ascii(
