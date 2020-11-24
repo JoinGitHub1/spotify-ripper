@@ -121,6 +121,31 @@ class WebAPI(object):
         self.cache_result(uri, result)
         return result
 
+    def get_playlist_name(self, playlist):
+        def get_playlist_json(spotify_id):
+            url = self.api_url('playlists/' + spotify_id)
+            return self.request_json(url, "name")
+
+        # extract playlist id from uri
+        uri = playlist.link.uri
+
+        # check for cached result
+        cached_result = self.get_cached_result(uri)
+        if cached_result is not None:
+            return cached_result
+
+        uri_tokens = uri.split(':')
+        if len(uri_tokens) != 3:
+            return None
+
+        json_obj = get_playlist_json(uri_tokens[2])
+        if json_obj is None:
+            return None
+
+        result = json_obj["name"]
+        self.cache_result(uri, result)
+        return result
+    
     # genre_type can be "artist" or "album"
     def get_genres(self, genre_type, track):
         def get_genre_json(spotify_id):
