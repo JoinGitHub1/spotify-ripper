@@ -93,7 +93,7 @@ def to_normalized_ascii(_str):
 
 def rm_file(file_name):
     try:
-        os.remove(enc_str(file_name))
+        os.remove(file_name)
     except OSError as e:
         # don't need to print a warning if the file doesn't exist
         if e.errno != errno.ENOENT:
@@ -109,13 +109,13 @@ def default_settings_dir():
 
 def settings_dir():
     args = get_args()
-    return norm_path(args.settings) if args.settings is not None \
+    return norm_path(args.settings[0]) if args.settings is not None \
         else default_settings_dir()
 
 
 def base_dir():
     args = get_args()
-    return norm_path(args.directory) if args.directory is not None \
+    return norm_path(args.directory[0]) if args.directory is not None \
         else os.getcwd()
 
 
@@ -161,10 +161,6 @@ def get_playlist_track(track, playlist):
     return None
 
 
-def change_file_extension(file_name, ext):
-    return os.path.splitext(file_name)[0] + "." + ext
-
-
 def format_track_string(ripper, format_string, idx, track):
     args = get_args()
     current_album = ripper.current_album
@@ -172,37 +168,34 @@ def format_track_string(ripper, format_string, idx, track):
 
     # this fixes the track.disc
     if not track.is_loaded:
-        track.load(args.timeout)
+        track.load()
     if not track.album.is_loaded:
-        track.album.load(args.timeout)
-    if current_album is None:
-        current_album = track.album
+        track.album.load()
     album_browser = track.album.browse()
-    album_browser.load(args.timeout)
+    album_browser.load()
 
     track_artist = to_ascii(
         escape_filename_part(track.artists[0].name))
-    track_artists = to_ascii(
-        escape_filename_part(", ".join(
-            [artist.name for artist in track.artists])))
+    track_artists = to_ascii(", ".join(
+        [artist.name for artist in track.artists]))
     if len(track.artists) > 1:
-        featuring_artists = to_ascii(
-            escape_filename_part(", ".join(
-                [artist.name for artist in track.artists[1:]])))
+        featuring_artists = to_ascii(", ".join(
+            [artist.name for artist in track.artists[1:]]))
     else:
         featuring_artists = ""
 
     album_artist = to_ascii(
-        escape_filename_part(current_album.artist.name))
+        current_album.artist.name
+        if current_album is not None else track_artist)
     album_artists_web = track_artists
 
     # only retrieve album_artist_web if it exists in the format string
-    if format_string.find("{album_artists_web}") >= 0:
+    if (current_album is not None and
+            format_string.find("{album_artists_web}") >= 0):
         artist_array = \
             ripper.web.get_artists_on_album(current_album.link.uri)
         if artist_array is not None:
-            album_artists_web = to_ascii(
-                escape_filename_part(", ".join(artist_array)))
+            album_artists_web = to_ascii(", ".join(artist_array))
 
     album = to_ascii(escape_filename_part(track.album.name))
     track_name = to_ascii(escape_filename_part(track.name))
@@ -211,7 +204,6 @@ def format_track_string(ripper, format_string, idx, track):
     idx_str = str(idx + 1)
     track_num = str(track.index)
     disc_num = str(track.disc)
-    track_uri = track.link.uri
 
     # calculate num of discs on the album
     num_discs = 0
@@ -239,7 +231,7 @@ def format_track_string(ripper, format_string, idx, track):
     if (format_string.find("{copyright}") >= 0 or
             format_string.find("{label}") >= 0):
         album_browser = track.album.browse()
-        album_browser.load(args.timeout)
+        album_browser.load()
         if len(album_browser.copyrights) > 0:
             copyright = escape_filename_part(album_browser.copyrights[0])
             label = re.sub(r"^[0-9]+\s+", "", copyright)
@@ -293,9 +285,7 @@ def format_track_string(ripper, format_string, idx, track):
         "playlist_track_add_time": create_time,
         "track_add_time": create_time,
         "playlist_track_add_user": creator,
-        "track_add_user": creator,
-        "track_uri": track_uri,
-        "uri": track_uri
+        "track_add_user": creator
     }
     fill_tags = {"idx", "index", "track_num", "track_idx",
                  "track_index", "disc_num", "disc_idx", "disc_index",
@@ -355,7 +345,7 @@ def format_track_string(ripper, format_string, idx, track):
 # returns path of executable
 def which(program):
     def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(enc_str(fpath), os.X_OK)
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = os.path.split(program)
     if fpath:
@@ -430,26 +420,20 @@ def format_size(size, short=False):
             str_value = str_value[:3]
         return "{0:>3s}{1}".format(str_value, suffix)
 
-# returns true if audio_file is a partial of track or corrupt
-def is_partial_or_corrupt(audio_file, track):
+# returns true if audio_file is a partial of track
+def is_partial(audio_file, track):
     args = get_args()
     if (args.partial_check == "none"):
         return False
 
     def audio_file_duration(audio_file):
         if (path_exists(audio_file)):
-            try:
-                _file = mutagen.File(enc_str(audio_file))
-            except mutagen.mp4.MP4StreamInfoError as e:
-                return "corrupt"
+            _file = mutagen.File(audio_file)
             if _file is not None and _file.info is not None:
                 return _file.info.length
         return None
 
     audio_file_dur = audio_file_duration(audio_file)
-
-    if audio_file_dur == "corrupt":
-        return True
 
     # for 'weak', give a ~1.5 second wiggle-room
     if (args.partial_check == "strict"):
